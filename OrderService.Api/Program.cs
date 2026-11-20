@@ -1,9 +1,11 @@
 using FluentValidation;
 using MediatR;
+using Microsoft.OpenApi.Models;
 using OrderService.Api.Application.Behaviors;
 using OrderService.Api.Application.Orders.CancelOrder;
 using OrderService.Api.Application.Orders.CreateOrder;
 using OrderService.Api.Domain.Common;
+using OrderService.Api.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,11 +18,20 @@ builder.Services.AddMediatR(cfg =>
 });
 
 builder.Services.AddValidatorsFromAssembly(assembly, includeInternalTypes: true);
+// Registro del repositorio requerido por los Handlers
+builder.Services.AddScoped<IOrderRepository, InMemoryOrderRepository>();
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "OrderService API",
+        Version = "v1"
+    });
+});
 
 var app = builder.Build();
 
